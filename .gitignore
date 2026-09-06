@@ -1,0 +1,21 @@
+# Secrets — never commit. Rotating secret.key signs every guest out and
+# invalidates every printed table QR code.
+data/secret.key
+data/FIRST-RUN-PASSWORDS.txt
+
+# Live data: guest names and phone numbers live here.
+data/*.db
+data/*.db-wal
+data/*.db-shm
+backups/
+
+# Logs
+data/*.log
+data/*.err
+data/*.out
+
+# 54 MB vendored binary — download it from the cloudflared releases page instead.
+cloudflared.exe
+
+__pycache__/
+*.pyc

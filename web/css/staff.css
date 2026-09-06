@@ -1,0 +1,166 @@
+/* Vendor console and admin dashboard. Denser than the guest app: these run on
+   a counter tablet or a laptop, not a phone in a crowd. */
+
+.login{max-width:400px;margin:8vh auto;padding:0 var(--gut)}
+.login__logo{width:110px;margin:0 auto 26px}
+.login .card{padding:26px 24px}
+
+.shell{display:flex;min-height:100svh;flex-direction:column}
+
+.nav{
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:8px;
+  padding:calc(9px + env(safe-area-inset-top)) var(--gut) 9px;
+  background:rgba(10,50,84,.96);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-2);overflow-x:auto;scrollbar-width:none;
+}
+.nav::-webkit-scrollbar{display:none}
+.nav__brand{
+  display:flex;align-items:center;gap:10px;font-family:var(--head);font-weight:900;
+  text-transform:uppercase;font-size:14px;white-space:nowrap;margin-right:6px;
+}
+.nav__brand img{width:64px}
+.nav__tabs{display:flex;gap:6px}
+.nav button.tab{
+  padding:9px 15px;border-radius:100px;border:1px solid var(--line);
+  font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;
+}
+.nav button.tab.is-on{background:var(--gold);color:#1a1206;border-color:var(--gold)}
+.nav__right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav__who{font-size:12px;color:var(--muted);white-space:nowrap}
+
+.page{flex:1;padding:22px var(--gut) 60px;max-width:1180px;margin:0 auto;width:100%}
+.page__head{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.page__head .h1{font-size:clamp(22px,5vw,30px)}
+
+/* ---------- Stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:11px;margin-bottom:22px}
+.stat{background:var(--ink-2);border:1px solid var(--line-2);border-radius:var(--radius);padding:15px 16px}
+.stat__label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
+.stat__value{font-family:var(--head);font-size:clamp(20px,4vw,27px);font-weight:900;margin-top:6px;color:var(--gold-2)}
+.stat__value--ok{color:#8FE4B2}
+.stat__value--warn{color:#F0C46B}
+.stat__sub{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+/* ---------- Order tickets ---------- */
+.tickets{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:13px}
+.ticket{
+  background:var(--ink-2);border:1px solid var(--line-2);border-left:4px solid var(--gold);
+  border-radius:var(--radius);padding:15px 16px;display:flex;flex-direction:column;gap:11px;
+}
+.ticket--PENDING{border-left-color:var(--warn);background:#1d3a52}
+.ticket--ACCEPTED{border-left-color:var(--info)}
+.ticket--READY{border-left-color:var(--ok)}
+.ticket--DELIVERED{border-left-color:var(--gold)}
+.ticket--PAID,.ticket--REJECTED,.ticket--CANCELLED{opacity:.6;border-left-color:var(--line)}
+.ticket__top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ticket__code{font-family:var(--head);font-size:22px;font-weight:900;letter-spacing:.06em}
+.ticket__table{
+  padding:4px 11px;border-radius:8px;background:rgba(201,160,99,.18);color:var(--gold-2);
+  font-weight:800;font-size:13px;
+}
+/* Standing events: the guest comes to the counter, so the runner must not go
+   looking for a table that does not exist. */
+.ticket__table--pickup{background:rgba(43,115,51,.22);color:#8FD79A}
+.ticket__age{margin-left:auto;font-size:11.5px;color:var(--muted)}
+.ticket__age--late{color:#FF9B94;font-weight:700}
+.ticket__lines{margin:0;padding:0;list-style:none;border-top:1px solid var(--line-2);padding-top:10px}
+.ticket__lines li{display:flex;gap:10px;padding:4px 0;font-size:13.5px}
+.ticket__qty{font-weight:800;color:var(--gold-2);min-width:26px}
+.ticket__note{
+  font-size:12.5px;padding:9px 11px;border-radius:9px;background:rgba(224,163,46,.13);
+  border:1px solid rgba(224,163,46,.3);color:#F0C46B;
+}
+.ticket__who{font-size:12px;color:var(--muted)}
+.ticket__total{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding-top:9px;border-top:1px solid var(--line-2);font-weight:800;
+}
+.ticket__total b{font-size:17px;color:var(--gold-2)}
+.ticket__actions{display:flex;gap:7px;flex-wrap:wrap}
+.ticket__actions .btn{flex:1;min-width:96px}
+
+/* ---------- Tables / lists ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{
+  text-align:left;font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted-2);padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+.tbl td{padding:11px 10px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+.rowitem{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:11px;
+  background:var(--ink-2);border:1px solid var(--line-2);margin-bottom:8px;flex-wrap:wrap;
+}
+.rowitem__main{flex:1 1 200px;min-width:0}
+.rowitem__name{font-weight:600;font-size:14px}
+.rowitem__meta{font-size:12px;color:var(--muted);margin-top:3px}
+.rowitem__actions{display:flex;gap:6px;flex-wrap:wrap}
+.rowitem--off{opacity:.5}
+
+.catgroup{margin-bottom:26px}
+.catgroup__head{
+  display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:11px;
+  padding-bottom:9px;border-bottom:1px solid var(--line);
+}
+.catgroup__name{font-family:var(--head);font-size:17px;font-weight:900;text-transform:uppercase}
+
+/* ---------- Bar chart ---------- */
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:flex;align-items:center;gap:11px;font-size:13px}
+.bar__label{flex:0 0 118px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar__track{flex:1;height:22px;background:rgba(0,0,0,.24);border-radius:6px;overflow:hidden}
+.bar__fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-2));border-radius:6px;min-width:2px}
+.bar__value{flex:0 0 auto;font-variant-numeric:tabular-nums;font-weight:700;min-width:78px;text-align:right}
+
+.sparks{display:flex;align-items:flex-end;gap:4px;height:96px;padding:10px 0}
+.spark{flex:1;background:linear-gradient(180deg,var(--gold-2),var(--gold));border-radius:4px 4px 0 0;min-height:3px}
+.sparklabels{display:flex;gap:4px;font-size:9.5px;color:var(--muted-2)}
+.sparklabels span{flex:1;text-align:center;overflow:hidden}
+
+.banner{
+  padding:13px 16px;border-radius:11px;margin-bottom:18px;font-size:13.5px;
+  background:rgba(224,163,46,.14);border:1px solid rgba(224,163,46,.36);color:#F0C46B;
+}
+.banner--info{background:rgba(62,143,208,.13);border-color:rgba(62,143,208,.34);color:#9CCBEE}
+
+/* A message from admin to the kitchens. Deliberately unlike a ticket, so it is
+   never mistaken for an order that needs actioning. */
+.brief{
+  background:rgba(224,163,46,.12);border:1px solid rgba(224,163,46,.34);
+  border-left:4px solid #E0A32E;border-radius:10px;
+  padding:13px 16px;margin:0 0 12px;
+}
+.brief__from{
+  font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:#E0A32E;margin-bottom:5px;
+}
+.brief__body{font-size:15px;font-weight:600;line-height:1.45;color:#F0C46B}
+.brief__when{font-size:11.5px;color:var(--muted);margin-top:5px}
+
+.qrcard{
+  background:#fff;border-radius:12px;padding:14px;text-align:center;color:#0A3254;
+}
+.qrcard__code{font-family:var(--head);font-size:20px;font-weight:900;margin-top:8px}
+.qrcard__del{
+  margin-top:8px;border:0;background:none;color:#B4453E;font:inherit;font-size:11px;
+  font-weight:700;cursor:pointer;padding:2px 6px;border-radius:6px;
+}
+.qrcard__del:hover{background:rgba(180,69,62,.12)}
+.qrgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+
+.split{display:grid;grid-template-columns:1fr;gap:22px}
+@media(min-width:920px){.split{grid-template-columns:1fr 1fr}}
+.split--wide{grid-template-columns:1fr}
+@media(min-width:920px){.split--wide{grid-template-columns:1.4fr 1fr}}
+
+.inline{display:flex;gap:9px;flex-wrap:wrap;align-items:flex-end}
+.inline .field{flex:1 1 150px;margin-bottom:0}
+
+@media print{
+  .nav,.btn,.page__head,.qrcard__del{display:none !important}
+  body{background:#fff;color:#000}
+  .qrcard{break-inside:avoid;border:1px solid #ccc}
+}

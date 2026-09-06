@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Admin · Zaria Court</title>
+<meta name="theme-color" content="#0A3254">
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/staff.css">
+</head>
+<body>
+
+<!-- ======== LOGIN ======== -->
+<div class="login" id="loginView">
+  <img class="login__logo" src="/assets/zaria-logo.png" alt="Zaria Court">
+  <div class="card">
+    <h1 class="h2" style="margin-bottom:6px">Admin sign in</h1>
+    <p class="small muted" style="margin:0 0 20px">Orders, revenue and venue settings.</p>
+    <div class="field">
+      <label for="lUser">Username</label>
+      <input class="input" id="lUser" type="text" autocomplete="username" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label for="lPass">Password</label>
+      <input class="input" id="lPass" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+    </div>
+    <span class="field__err hidden" id="lErr"></span>
+    <button class="btn btn--block" id="loginBtn" type="button">Sign in</button>
+  </div>
+</div>
+
+<!-- ======== CONSOLE ======== -->
+<div class="shell hidden" id="shell">
+  <nav class="nav">
+    <span class="nav__brand"><img src="/assets/zaria-logo.png" alt="">Admin</span>
+    <span class="nav__tabs">
+      <button class="tab is-on" data-tab="overview" type="button">Overview</button>
+      <button class="tab" data-tab="orders" type="button">Orders</button>
+      <button class="tab" data-tab="vendors" type="button">Vendors</button>
+      <button class="tab" data-tab="tables" type="button">Tables &amp; QR</button>
+      <button class="tab" data-tab="notices" type="button">Notices</button>
+      <button class="tab" data-tab="settings" type="button">Settings</button>
+    </span>
+    <span class="nav__right">
+      <span class="nav__who" id="navWho"></span>
+      <button class="iconbtn" id="logoutBtn" type="button">Sign out</button>
+    </span>
+  </nav>
+
+  <main class="page">
+    <div class="banner hidden" id="pwBanner">
+      This account still uses its first-run password.
+      <button class="btn btn--sm" id="pwBannerBtn" type="button" style="margin-left:8px">Change it now</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="tabpane" id="paneOverview">
+      <div class="page__head">
+        <h1 class="h1">Overview</h1>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <select class="input" id="rangeSel" style="min-height:40px;width:auto">
+            <option value="1">Today</option>
+            <option value="7" selected>Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+          <button class="iconbtn" id="csvBtn" type="button">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="stats" id="statGrid"></div>
+
+      <div class="split split--wide">
+        <div class="card">
+          <h2 class="h2" style="margin-bottom:4px">Revenue by kitchen</h2>
+          <p class="small muted" style="margin:0 0 16px">Money actually collected.</p>
+          <div class="bars" id="vendorBars"></div>
+        </div>
+        <div class="card">
+          <h2 class="h2" style="margin-bottom:4px">Community</h2>
+          <p class="small muted" style="margin:0 0 16px">WhatsApp group link.</p>
+          <div class="stats" id="communityStats" style="grid-template-columns:1fr"></div>
+          <p class="small muted" style="margin:14px 0 0">
+            WhatsApp does not report who joins a group, so this counts people who tapped
+            the invite — the closest measurable signal. Compare it with the member count
+            you see inside the group itself.
+          </p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:22px">
+        <h2 class="h2" style="margin-bottom:4px">Orders per day</h2>
+        <p class="small muted" style="margin:0 0 6px">Paid revenue in the bar height.</p>
+        <div class="sparks" id="daySparks"></div>
+        <div class="sparklabels" id="dayLabels"></div>
+      </div>
+
+      <div class="split" style="margin-top:22px">
+        <div class="card">
+          <h2 class="h2" style="margin-bottom:16px">Best sellers</h2>
+          <div class="tblwrap"><table class="tbl" id="topItems"></table></div>
+        </div>
+        <div class="card">
+          <h2 class="h2" style="margin-bottom:16px">Busiest tables</h2>
+          <div class="tblwrap"><table class="tbl" id="tableTable"></table></div>
+        </div>
+      </div>
+
+      <div class="split" style="margin-top:22px">
+        <div class="card">
+          <h2 class="h2" style="margin-bottom:16px">How people paid</h2>
+          <div class="tblwrap"><table class="tbl" id="payTable"></table></div>
+        </div>
+        <div class="card">
+          <h2 class="h2" style="margin-bottom:16px">Busiest hours</h2>
+          <div class="bars" id="hourBars"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section class="tabpane hidden" id="paneOrders">
+      <div class="page__head">
+        <h1 class="h1">Orders</h1>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <select class="input" id="statusSel" style="min-height:40px;width:auto">
+            <option value="">All statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="ACCEPTED">Accepted</option>
+            <option value="READY">Ready</option>
+            <option value="DELIVERED">Delivered — not paid</option>
+            <option value="PAID">Paid</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+          <button class="iconbtn" id="ordersRefresh" type="button">Refresh</button>
+        </div>
+      </div>
+      <div class="tblwrap"><table class="tbl" id="ordersTable"></table></div>
+    </section>
+
+    <!-- VENDORS -->
+    <section class="tabpane hidden" id="paneVendors">
+      <div class="page__head"><h1 class="h1">Vendors</h1></div>
+      <p class="small muted" style="margin:-8px 0 18px">
+        Create a login for each kitchen. They get a one-time password and must change it on first sign-in.
+      </p>
+      <div id="vendorList"></div>
+    </section>
+
+    <!-- TABLES -->
+    <section class="tabpane hidden" id="paneTables">
+      <div class="page__head">
+        <h1 class="h1">Tables &amp; QR codes</h1>
+        <span class="small muted" id="tableCount" style="margin-left:12px"></span>
+        <button class="iconbtn" id="printBtn" type="button" style="margin-left:auto">Print sheet</button>
+      </div>
+      <div class="card" style="margin-bottom:22px">
+        <div class="inline">
+          <div class="field">
+            <label for="tCodes">Add tables</label>
+            <input class="input" id="tCodes" type="text" maxlength="400" placeholder="A1-A20, VIP1, VIP2">
+            <span class="field__hint">Commas for a list, a dash for a range.</span>
+          </div>
+          <div class="field" style="flex:0 0 170px">
+            <label for="tZone">Zone</label>
+            <input class="input" id="tZone" type="text" maxlength="40" placeholder="Main floor">
+          </div>
+          <button class="btn" id="addTablesBtn" type="button">Add</button>
+          <button class="btn btn--danger" id="replaceTablesBtn" type="button">Replace all</button>
+        </div>
+        <p class="small muted" style="margin:12px 0 0">
+          <strong>Add</strong> keeps what is already there. <strong>Replace all</strong>
+          clears the list and sets it to exactly what you typed — that is the one to use
+          when a new event has a different floor plan. Past orders keep their table
+          number either way.
+        </p>
+      </div>
+      <div class="card" style="margin-bottom:22px">
+        <h2 class="h2" style="margin-bottom:6px">Venue Wi-Fi</h2>
+        <p class="small muted" style="margin:0 0 14px">
+          A guest on their own data bundle cannot reach this server while it runs on the
+          venue network — their phone is not on it. Print this code beside the menu code
+          so joining the Wi-Fi is one scan instead of a conversation.
+        </p>
+        <div class="inline">
+          <div class="field">
+            <label for="setSsid">Network name (SSID)</label>
+            <input class="input" id="setSsid" type="text" maxlength="32" placeholder="Zaria Court">
+          </div>
+          <div class="field">
+            <label for="setWifiPw">Password</label>
+            <input class="input" id="setWifiPw" type="text" maxlength="63" placeholder="Leave blank if open">
+            <span class="field__hint">Exactly as typed, spaces included.</span>
+          </div>
+          <button class="btn" id="saveWifiBtn" type="button">Save</button>
+        </div>
+        <div id="wifiPreview" style="margin-top:16px"></div>
+      </div>
+
+      <p class="small muted" style="margin:0 0 16px">
+        Each QR carries a signed table code, so a guest cannot point an order at someone
+        else's table by editing the link. Print these and put one on each table.
+      </p>
+      <div class="qrgrid" id="qrGrid"></div>
+    </section>
+
+    <!-- NOTICES -->
+    <section class="tabpane hidden" id="paneNotices">
+      <div class="page__head"><h1 class="h1">Notices</h1></div>
+      <p class="small muted" style="margin:-8px 0 18px">
+        Write to guests, or brief the kitchens. Kitchens post their own offers from their
+        console — that is what guests end up seeing.
+      </p>
+      <div class="card" style="margin-bottom:22px">
+        <div class="inline">
+          <div class="field" style="flex:0 0 220px">
+            <label for="aAudience">Who sees this</label>
+            <select class="input" id="aAudience">
+              <option value="GUESTS">Guests — scrolls on their screen</option>
+              <option value="VENDORS">The kitchens — staff only</option>
+            </select>
+          </div>
+          <div class="field" style="flex:0 0 160px">
+            <label for="aKind">Type</label>
+            <select class="input" id="aKind">
+              <option value="EVENT">Tonight</option>
+              <option value="INFO">Notice</option>
+              <option value="DISCOUNT">Offer</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="aBody">Message</label>
+            <input class="input" id="aBody" type="text" maxlength="300" placeholder="Doors at 7pm · Kitchens close at 11pm">
+          </div>
+          <button class="btn" id="addAnnBtn" type="button">Post</button>
+        </div>
+        <p class="small muted" style="margin:12px 0 0" id="aHint">
+          This scrolls across every guest's screen within about half a minute.
+        </p>
+      </div>
+      <div id="annList"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="tabpane hidden" id="paneSettings">
+      <div class="page__head"><h1 class="h1">Settings</h1></div>
+      <div class="split">
+        <div class="card">
+          <h2 class="h2" style="margin-bottom:14px">Venue</h2>
+          <div class="field">
+            <label for="setName">Venue name</label>
+            <input class="input" id="setName" type="text" maxlength="60">
+          </div>
+          <div class="field">
+            <label for="setWa">WhatsApp community link</label>
+            <input class="input" id="setWa" type="url" maxlength="300">
+          </div>
+          <div class="field">
+            <label for="setBase">Public address used in QR codes</label>
+            <input class="input" id="setBase" type="url" maxlength="300" placeholder="https://order.zariacourt.rw">
+            <span class="field__hint">Set this before printing QR codes.</span>
+          </div>
+          <div class="field">
+            <label for="setNotice">Notice on the guest home screen</label>
+            <input class="input" id="setNotice" type="text" maxlength="300">
+          </div>
+          <div class="field">
+            <label for="setMode">How guests get their order tonight</label>
+            <select class="input" id="setMode">
+              <option value="TABLE">Seated — every order needs a table number</option>
+              <option value="BOTH">Mixed — tables exist, standing guests may skip it</option>
+              <option value="PICKUP">Standing — no tables, guests collect at the kitchen</option>
+            </select>
+            <span class="field__hint">
+              Change this per event. Standing hides the table question entirely and
+              gives each guest a four-letter collection code.
+            </span>
+          </div>
+          <button class="btn btn--block" id="saveSettingsBtn" type="button">Save settings</button>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom:18px">
+            <h2 class="h2" style="margin-bottom:14px">Ordering</h2>
+            <div class="rowitem">
+              <div class="rowitem__main">
+                <div class="rowitem__name">Accept orders venue-wide</div>
+                <div class="rowitem__meta">The emergency stop. Guests can still read menus.</div>
+              </div>
+              <button class="btn btn--sm" id="orderingToggle" type="button">—</button>
+            </div>
+            <div class="field" style="margin-top:16px">
+              <label for="setDeviceCap">Orders per hour from one phone</label>
+              <input class="input" id="setDeviceCap" type="number" min="1" max="500" step="1">
+              <span class="field__hint">
+                A table sharing one phone orders several times a night, so keep this
+                comfortable. This is the limit that stops a prankster.
+              </span>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label for="setIpCap">Orders per hour from one internet address</label>
+              <input class="input" id="setIpCap" type="number" min="10" max="100000" step="10">
+              <span class="field__hint" id="ipCapHint">
+                Guests coming in from the internet share an address — everyone on Zaria
+                Wi-Fi looks like one address, and so does everyone on the same mobile
+                network. This is a flood backstop for the whole crowd, not per guest.
+                Raise it if real guests start being told to wait.
+              </span>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:18px">
+            <h2 class="h2" style="margin-bottom:6px">Kiosks</h2>
+            <p class="small muted" style="margin:0 0 14px">
+              A kiosk PC puts in orders for many guests, so the per-guest limits would
+              stop it. Register it <strong>from the kiosk itself</strong> and it is left
+              alone. Blocks still apply.
+            </p>
+            <div class="rowitem">
+              <div class="rowitem__main">
+                <div class="rowitem__name">This computer</div>
+                <div class="rowitem__meta" id="kioskHint">—</div>
+              </div>
+              <button class="btn btn--sm" id="kioskBtn" type="button">—</button>
+            </div>
+            <div id="kioskList" style="margin-top:10px"></div>
+          </div>
+
+          <div class="card" style="margin-bottom:18px">
+            <h2 class="h2" style="margin-bottom:6px">Staff sign-in</h2>
+            <p class="small muted" style="margin:0 0 14px">
+              Guests reach the system from the internet so people on their own data can
+              order. Kitchens and admin are in the building, so they do not need to be.
+            </p>
+            <div class="rowitem">
+              <div class="rowitem__main">
+                <div class="rowitem__name">Venue network only</div>
+                <div class="rowitem__meta" id="staffNetHint">—</div>
+              </div>
+              <button class="btn btn--sm" id="staffNetToggle" type="button">—</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:18px">
+            <h2 class="h2" style="margin-bottom:6px">Blocked guests</h2>
+            <p class="small muted" style="margin:0 0 14px">
+              Enter an order code to block the phone that placed it.
+            </p>
+            <div class="inline" style="margin-bottom:14px">
+              <div class="field">
+                <label for="bCode">Order code</label>
+                <input class="input" id="bCode" type="text" maxlength="40" placeholder="K4RT">
+              </div>
+              <div class="field" style="flex:0 0 130px">
+                <label for="bKind">Block</label>
+                <select class="input" id="bKind">
+                  <option value="device">That phone</option>
+                  <option value="phone">That number</option>
+                  <option value="ip">That network</option>
+                </select>
+              </div>
+              <button class="btn btn--danger" id="addBlockBtn" type="button">Block</button>
+            </div>
+            <div id="blockList"></div>
+          </div>
+
+          <div class="card">
+            <h2 class="h2" style="margin-bottom:14px">Password</h2>
+            <div class="field">
+              <label for="pCur">Current password</label>
+              <input class="input" id="pCur" type="password" autocomplete="current-password">
+            </div>
+            <div class="field">
+              <label for="pNew">New password</label>
+              <input class="input" id="pNew" type="password" autocomplete="new-password">
+              <span class="field__hint">At least 10 characters.</span>
+            </div>
+            <span class="field__err hidden" id="pErr"></span>
+            <button class="btn btn--block" id="savePwBtn" type="button">Change password</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:22px">
+        <h2 class="h2" style="margin-bottom:6px">Personal data</h2>
+        <p class="small muted" id="retentionNote" style="margin:0 0 14px"></p>
+        <button class="btn btn--ghost" id="purgeBtn" type="button">Scrub expired names and numbers now</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/js/common.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vendor console · Zaria Court</title>
+<meta name="theme-color" content="#0A3254">
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/staff.css">
+</head>
+<body>
+
+<!-- ======== LOGIN ======== -->
+<div class="login" id="loginView">
+  <img class="login__logo" src="/assets/zaria-logo.png" alt="Zaria Court">
+  <div class="card">
+    <h1 class="h2" style="margin-bottom:6px">Vendor sign in</h1>
+    <p class="small muted" style="margin:0 0 20px">Manage your menu and your orders.</p>
+    <div class="field">
+      <label for="lUser">Username</label>
+      <input class="input" id="lUser" type="text" autocomplete="username" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label for="lPass">Password</label>
+      <input class="input" id="lPass" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false">
+    </div>
+    <span class="field__err hidden" id="lErr"></span>
+    <button class="btn btn--block" id="loginBtn" type="button">Sign in</button>
+  </div>
+</div>
+
+<!-- ======== CONSOLE ======== -->
+<div class="shell hidden" id="shell">
+  <nav class="nav">
+    <span class="nav__brand"><img src="/assets/zaria-logo.png" alt=""><span id="navVendor">—</span></span>
+    <span class="nav__tabs">
+      <button class="tab is-on" data-tab="orders" type="button">Orders</button>
+      <button class="tab" data-tab="menu" type="button">Menu</button>
+      <button class="tab" data-tab="offers" type="button">Offers</button>
+      <button class="tab" data-tab="notices" type="button">Notices</button>
+      <button class="tab" data-tab="shop" type="button">Shop</button>
+    </span>
+    <span class="nav__right">
+      <span class="nav__who" id="navWho"></span>
+      <button class="iconbtn" id="logoutBtn" type="button">Sign out</button>
+    </span>
+  </nav>
+
+  <main class="page">
+    <div class="banner hidden" id="pwBanner">
+      This account still uses its first-run password.
+      <button class="btn btn--sm" id="pwBannerBtn" type="button" style="margin-left:8px">Change it now</button>
+    </div>
+
+    <!-- ORDERS -->
+    <section class="tabpane" id="paneOrders">
+      <div class="page__head">
+        <h1 class="h1">Orders</h1>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <span class="small muted" id="liveDot">Live</span>
+          <button class="iconbtn" id="refreshBtn" type="button">Refresh</button>
+        </div>
+      </div>
+      <div id="briefing"></div>
+      <div class="stats" id="orderStats"></div>
+      <div class="tickets" id="ticketGrid"></div>
+    </section>
+
+    <!-- MENU -->
+    <section class="tabpane hidden" id="paneMenu">
+      <div class="page__head">
+        <h1 class="h1">Menu</h1>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn--ghost btn--sm" id="addCatBtn" type="button">+ Section</button>
+          <button class="btn btn--sm" id="addItemBtn" type="button">+ Item</button>
+        </div>
+      </div>
+      <p class="small muted" style="margin:-8px 0 18px">
+        Changes appear on guests' phones straight away. Use <b>Sold out</b> during service —
+        it hides the item from ordering but keeps it on the menu for tomorrow.
+      </p>
+      <div id="menuEditor"></div>
+    </section>
+
+    <!-- OFFERS -->
+    <section class="tabpane hidden" id="paneOffers">
+      <div class="page__head"><h1 class="h1">Offers</h1></div>
+      <p class="small muted" style="margin:-8px 0 18px">
+        A percentage off, applied when the guest checks out. Prices on the menu update
+        immediately and the old price is shown crossed out.
+      </p>
+      <div class="card" style="margin-bottom:22px">
+        <div class="inline">
+          <div class="field">
+            <label for="dScope">Applies to</label>
+            <select class="input" id="dScope">
+              <option value="vendor">Everything we sell</option>
+              <option value="category">One section</option>
+              <option value="item">One item</option>
+            </select>
+          </div>
+          <div class="field hidden" id="dTargetWrap">
+            <label for="dTarget">Which one</label>
+            <select class="input" id="dTarget"></select>
+          </div>
+          <div class="field" style="flex:0 0 110px">
+            <label for="dPercent">Percent off</label>
+            <input class="input" id="dPercent" type="number" min="1" max="90" value="10">
+          </div>
+          <div class="field">
+            <label for="dLabel">Label (optional)</label>
+            <input class="input" id="dLabel" type="text" maxlength="60" placeholder="Concert night">
+          </div>
+          <button class="btn" id="addDiscBtn" type="button">Start offer</button>
+        </div>
+      </div>
+      <div id="discList"></div>
+    </section>
+
+    <!-- NOTICES -->
+    <section class="tabpane hidden" id="paneNotices">
+      <div class="page__head"><h1 class="h1">Notices</h1></div>
+      <div id="briefingNotices"></div>
+      <p class="small muted" style="margin:-8px 0 18px">
+        These scroll across the top of every guest's screen. Keep them short — one line.
+      </p>
+      <div class="card" style="margin-bottom:22px">
+        <div class="inline">
+          <div class="field" style="flex:0 0 160px">
+            <label for="aKind">Type</label>
+            <select class="input" id="aKind">
+              <option value="DISCOUNT">Offer</option>
+              <option value="INFO">Notice</option>
+              <option value="SOLD_OUT">Sold out</option>
+              <option value="EVENT">Tonight</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="aBody">Message</label>
+            <input class="input" id="aBody" type="text" maxlength="160" placeholder="Two-for-one wings until 9pm">
+          </div>
+          <button class="btn" id="addAnnBtn" type="button">Post</button>
+        </div>
+      </div>
+      <div id="annList"></div>
+    </section>
+
+    <!-- SHOP -->
+    <section class="tabpane hidden" id="paneShop">
+      <div class="page__head"><h1 class="h1">Shop</h1></div>
+      <div class="split">
+        <div class="card">
+          <h2 class="h2" style="margin-bottom:14px">Taking orders</h2>
+          <div class="rowitem">
+            <div class="rowitem__main">
+              <div class="rowitem__name">Kitchen open</div>
+              <div class="rowitem__meta">Turn off when you stop serving. Guests see “Closed”.</div>
+            </div>
+            <button class="btn btn--sm" id="openToggle" type="button">—</button>
+          </div>
+          <div class="rowitem">
+            <div class="rowitem__main">
+              <div class="rowitem__name">Accept app orders</div>
+              <div class="rowitem__meta">Turn off to show the menu but send people to the kiosk.</div>
+            </div>
+            <button class="btn btn--sm" id="acceptToggle" type="button">—</button>
+          </div>
+          <div class="field" style="margin-top:16px">
+            <label for="sMomo">MoMo code shown to guests</label>
+            <div class="inline">
+              <input class="input" id="sMomo" type="text" maxlength="24" placeholder="7700777">
+              <button class="btn btn--sm" id="saveMomoBtn" type="button">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2 class="h2" style="margin-bottom:14px">Password</h2>
+          <div class="field">
+            <label for="pCur">Current password</label>
+            <input class="input" id="pCur" type="password" autocomplete="current-password">
+          </div>
+          <div class="field">
+            <label for="pNew">New password</label>
+            <input class="input" id="pNew" type="password" autocomplete="new-password">
+            <span class="field__hint">At least 10 characters.</span>
+          </div>
+          <span class="field__err hidden" id="pErr"></span>
+          <button class="btn btn--block" id="savePwBtn" type="button">Change password</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ======== ITEM EDITOR SHEET ======== -->
+<div class="sheet" id="itemSheet" role="dialog" aria-modal="true" aria-label="Edit item">
+  <div class="sheet__panel">
+    <div class="sheet__head">
+      <h2 class="h2" id="itemSheetTitle">Item</h2>
+      <button class="sheet__close" id="itemClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet__body">
+      <div class="field">
+        <label for="iName">Name</label>
+        <input class="input" id="iName" type="text" maxlength="90">
+        <span class="field__err hidden" id="iNameErr"></span>
+      </div>
+      <div class="field">
+        <label for="iPrice">Price (RWF)</label>
+        <input class="input" id="iPrice" type="number" min="0" step="100" inputmode="numeric">
+        <span class="field__err hidden" id="iPriceErr"></span>
+      </div>
+      <div class="field">
+        <label for="iCat">Section</label>
+        <select class="input" id="iCat"></select>
+      </div>
+      <div class="field">
+        <label for="iDesc">Description (optional)</label>
+        <textarea class="input" id="iDesc" maxlength="300"></textarea>
+      </div>
+      <div class="field">
+        <label for="iTags">Labels</label>
+        <select class="input" id="iTags">
+          <option value="">None</option>
+          <option value="vegetarian">Vegetarian</option>
+          <option value="vegan">Vegan</option>
+          <option value="chef">Chef's choice</option>
+        </select>
+      </div>
+      <button class="btn btn--block" id="itemSave" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== CATEGORY SHEET ======== -->
+<div class="sheet" id="catSheet" role="dialog" aria-modal="true" aria-label="Edit section">
+  <div class="sheet__panel">
+    <div class="sheet__head">
+      <h2 class="h2" id="catSheetTitle">Section</h2>
+      <button class="sheet__close" id="catClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet__body">
+      <div class="field">
+        <label for="cName">Name</label>
+        <input class="input" id="cName" type="text" maxlength="60">
+        <span class="field__err hidden" id="cNameErr"></span>
+      </div>
+      <div class="field">
+        <label for="cNote">Note under the heading (optional)</label>
+        <input class="input" id="cNote" type="text" maxlength="200">
+      </div>
+      <button class="btn btn--block" id="catSave" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/js/common.js"></script>
+<script src="/js/vendor.js"></script>
+</body>
+</html>

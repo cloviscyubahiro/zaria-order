@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Order · Zaria Court Kigali</title>
+<meta name="description" content="Order food and drinks to your table at Zaria Court Kigali.">
+<meta name="theme-color" content="#0A3254">
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/guest.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar__row">
+    <img class="topbar__logo" src="/assets/zaria-logo.png" alt="Zaria Court Kigali">
+    <div class="topbar__spacer"></div>
+    <span class="topbar__table hidden" id="tableChip">Table <b id="tableChipCode">—</b></span>
+    <button class="iconbtn hidden" id="ordersBtn" type="button">My orders</button>
+  </div>
+</header>
+
+<div class="ticker hidden" id="ticker" aria-live="polite">
+  <div class="ticker__track" id="tickerTrack"></div>
+</div>
+
+<!-- ======== HOME ======== -->
+<main class="view" id="viewHome">
+  <section class="hero">
+    <div class="hero__inner">
+      <p class="h-kicker">Zaria Court Kigali</p>
+      <h1 class="h1"><span class="hollow">Order to</span><span class="solid">your table</span></h1>
+      <p class="hero__sub" id="heroSub">Four kitchens in the container park. Pick what you want, tell us your table, and pay the runner when it arrives.</p>
+
+      <div class="tablebar" id="tableBar">
+        <span class="tablebar__label">Your table</span>
+        <span class="tablebar__value" id="tableValue">—</span>
+        <button class="btn btn--ghost btn--sm" id="changeTableBtn" type="button">Change</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="section">
+      <p class="h-kicker">Choose a kitchen</p>
+      <div class="vendors" id="vendorGrid"><div class="spinner"></div></div>
+    </section>
+
+    <a class="join" id="joinLink" href="/j/whatsapp">
+      <span><strong>Zaria Community</strong>Events, match nights and offers on WhatsApp.</span>
+      <em>→</em>
+    </a>
+
+    <p class="small muted" style="margin:24px 0 40px">
+      Ordering here does not take payment. You pay the runner in cash or MoMo when your
+      food is handed to you.
+    </p>
+  </div>
+</main>
+
+<!-- ======== MENU ======== -->
+<main class="view hidden" id="viewMenu">
+  <div class="menuhead">
+    <div class="menuhead__inner">
+      <button class="iconbtn" id="menuBack" type="button">← All kitchens</button>
+      <h1 class="menuhead__name" id="menuName">—</h1>
+      <p class="menuhead__tag" id="menuTag"></p>
+      <span class="menuhead__disc hidden" id="menuDisc"></span>
+    </div>
+  </div>
+  <nav class="jump" id="menuJump" aria-label="Menu sections"></nav>
+  <div class="wrap" id="menuBody"></div>
+  <div style="height:110px"></div>
+</main>
+
+<!-- ======== ORDER TRACKING ======== -->
+<main class="view hidden" id="viewTrack">
+  <div class="wrap track">
+    <button class="iconbtn" id="trackBack" type="button">← Back to menus</button>
+    <h1 class="h1" style="margin:16px 0 6px;font-size:clamp(22px,6vw,32px)">Your orders</h1>
+    <p class="muted small" id="trackHint">Keep this page open. It refreshes on its own.</p>
+    <div id="trackBody" style="margin-top:18px"></div>
+  </div>
+  <div style="height:60px"></div>
+</main>
+
+<!-- ======== CART BAR ======== -->
+<div class="cartbar" id="cartBar">
+  <div class="cartbar__inner">
+    <div>
+      <div class="cartbar__count" id="cartCount">0 items</div>
+      <div class="cartbar__total money" id="cartTotal">0 RWF</div>
+    </div>
+    <button class="btn" id="viewCartBtn" style="margin-left:auto" type="button">View basket</button>
+  </div>
+</div>
+
+<!-- ======== CART SHEET ======== -->
+<div class="sheet" id="cartSheet" role="dialog" aria-modal="true" aria-label="Your basket">
+  <div class="sheet__panel">
+    <div class="sheet__head">
+      <h2 class="h2">Your basket</h2>
+      <button class="sheet__close" id="cartClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet__body" id="cartBody"></div>
+  </div>
+</div>
+
+<!-- ======== CHECKOUT SHEET ======== -->
+<div class="sheet" id="checkoutSheet" role="dialog" aria-modal="true" aria-label="Send order">
+  <div class="sheet__panel">
+    <div class="sheet__head">
+      <h2 class="h2">Send to the kitchen</h2>
+      <button class="sheet__close" id="checkoutClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet__body">
+      <div class="field" id="fTableField">
+        <label for="fTable" id="fTableLabel">Table number</label>
+        <select class="input" id="fTable"></select>
+        <span class="field__err hidden" id="eTable"></span>
+      </div>
+      <p class="paynote hidden" id="collectNote">
+        <strong>No table? That is fine.</strong> Leave it blank and collect at the
+        kitchen — your four-letter code is on the next screen.
+      </p>
+      <div class="field">
+        <label for="fName">Your name</label>
+        <input class="input" id="fName" type="text" autocomplete="name" maxlength="60" placeholder="So the runner can call you">
+        <span class="field__err hidden" id="eName"></span>
+      </div>
+      <div class="field">
+        <label for="fPhone">Mobile number <span class="muted">(optional)</span></label>
+        <input class="input" id="fPhone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="078 123 4567">
+        <span class="field__hint">Only if you want a call about this order. You can leave it blank.</span>
+        <span class="field__err hidden" id="ePhone"></span>
+      </div>
+      <div class="field">
+        <label for="fNote">Anything else? (optional)</label>
+        <textarea class="input" id="fNote" maxlength="400" placeholder="Allergies, no pili pili, extra napkins…"></textarea>
+      </div>
+
+      <div class="totals" id="checkoutTotals"></div>
+
+      <div class="paynote">
+        <strong>You pay when it arrives.</strong> No card or MoMo details are taken here.
+        The runner will collect cash or MoMo at your table.
+      </div>
+
+      <button class="btn btn--block" id="placeBtn" style="margin-top:18px" type="button">Send order</button>
+      <p class="small muted" style="margin:12px 0 0;text-align:center">
+        By sending you agree we may store what you gave us for 90 days to run this order.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ======== TABLE PICKER SHEET ======== -->
+<div class="sheet" id="tableSheet" role="dialog" aria-modal="true" aria-label="Choose your table">
+  <div class="sheet__panel">
+    <div class="sheet__head">
+      <h2 class="h2">Your table</h2>
+      <button class="sheet__close" id="tableClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet__body">
+      <p class="muted small" style="margin:0 0 14px">
+        Scan the QR code on your table to set this automatically, or pick it from the list.
+      </p>
+      <div class="field">
+        <label for="fTablePick">Table</label>
+        <select class="input" id="fTablePick"></select>
+      </div>
+      <button class="btn btn--block" id="tableSave" type="button">Save table</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/js/common.js"></script>
+<script src="/js/guest.js"></script>
+</body>
+</html>
