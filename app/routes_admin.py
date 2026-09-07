@@ -6,7 +6,7 @@ import io
 import re
 from datetime import timedelta
 
-from . import config, db, guards, orders, qr, security
+from . import config, db, guards, orders, qr, roles, security
 from .web import HttpError, Request, Response, Router, json_response
 
 router = Router()
@@ -601,6 +601,9 @@ EDITABLE_SETTINGS = {
     "venue_name", "whatsapp_url", "venue_notice", "ordering_enabled", "public_base_url",
     "service_mode", "wifi_ssid", "wifi_password", "wifi_security", "staff_network",
     "orders_per_shared_ip_hour", "orders_per_device_hour",
+    # One address per console. Blank means that console has no address of its
+    # own and is served wherever the others are.
+    "host_guest", "host_vendor", "host_admin",
 }
 
 # Settings that hold a number, with the range that is sane for each.
@@ -637,10 +640,48 @@ def get_settings(req: Request):
     })
 
 
+def _guard_console_addresses(req: Request, payload: dict) -> None:
+    """Refuse an address layout that would lock the admin out of this console.
+
+    Giving each console its own address means the address you are reading this
+    on stops serving admin the moment it is claimed by another role. That is the
+    point of the feature, and it is also the way to lose the console entirely --
+    the next click would 404 with no way back short of editing the database. So
+    the layout is applied to the address in hand first, and rejected if the
+    answer is anything but admin.
+    """
+    proposed = {}
+    for role, key in roles.SETTING_KEYS.items():
+        raw = payload[key] if key in payload else db.setting(key, "")
+        host = roles.normalise(security.clean_text(raw, 300))
+        if host:
+            proposed[host] = role
+
+    if not proposed:
+        return                       # every console back on one address
+
+    here = roles.normalise(req.headers.get("Host", ""))
+    landed = proposed.get(here)
+    if landed == roles.ADMIN or landed is None:
+        # Either this address serves admin, or it is not spoken for and so still
+        # serves everything.
+        return
+
+    raise HttpError(
+        400,
+        f"That would hand this address ({here}) to the {landed} console and lock you "
+        f"out of admin. Set the admin address first, open the console there, and "
+        f"then set the others.",
+        roles.SETTING_KEYS[landed],
+    )
+
+
 @router.route("POST", "/api/admin/settings")
 def put_settings(req: Request):
     guards.require_admin(req)
     payload = req.json()
+    if any(k in payload for k in roles.SETTING_KEYS.values()):
+        _guard_console_addresses(req, payload)
     changed = []
     for key, value in payload.items():
         if key not in EDITABLE_SETTINGS:

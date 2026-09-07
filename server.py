@@ -19,18 +19,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import config, db, orders, security                      # noqa: E402
+from app import config, db, orders, roles, security               # noqa: E402
 from app import routes_admin, routes_public, routes_vendor        # noqa: E402
 from app.web import (HttpError, Request, Response, Router,        # noqa: E402
                      SECURITY_HEADERS, json_response, serve_static)
-
-PAGES = {
-    "/": "index.html",
-    "/order": "index.html",
-    "/vendor": "vendor.html",
-    "/admin": "admin.html",
-    "/kitchen": "vendor.html",
-}
 
 
 def build_router() -> Router:
@@ -93,6 +85,13 @@ class Handler(BaseHTTPRequestHandler):
             except (BrokenPipeError, ConnectionResetError):
                 pass
 
+    @staticmethod
+    def _absent(req: Request) -> Response:
+        """Identical to the answer for a path that genuinely does not exist."""
+        if req.path.startswith("/api/"):
+            return json_response({"error": "Not found."}, 404)
+        return Response(404, b"Not found.")
+
     def _handle(self):
         try:
             req = Request(self)
@@ -100,7 +99,21 @@ class Handler(BaseHTTPRequestHandler):
             self._send(Response(400, b"Bad request"))
             return
 
+        # Which of the three sites was asked for. None means one address is
+        # serving all three, which is what the venue laptop does.
         try:
+            role = roles.role_for(req.headers.get("Host", ""))
+        except Exception:
+            role = None
+
+        try:
+            # Anything belonging to another role is not merely refused here, it
+            # is answered as though it does not exist -- so the guest address
+            # gives away nothing about where the consoles live.
+            if not roles.allows(role, req.path):
+                self._send(self._absent(req))
+                return
+
             # 1. API and other registered routes
             resp = ROUTER.dispatch(req)
             if resp is not None:
@@ -108,7 +121,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
 
             # 2. App pages
-            page = PAGES.get(req.path)
+            page = roles.page_for(role, req.path)
             if page:
                 static = serve_static(page)
                 if static:
