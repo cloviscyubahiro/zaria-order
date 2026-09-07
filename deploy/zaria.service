@@ -1,0 +1,49 @@
+# systemd unit: keeps the ordering system running and restarts it if it stops.
+#
+#   sudo cp deploy/zaria.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now zaria
+#   systemctl status zaria
+#
+# Edit the three host names below to match your domain before enabling.
+
+[Unit]
+Description=Zaria Court ordering system
+After=network.target
+
+[Service]
+Type=simple
+User=zaria
+Group=zaria
+WorkingDirectory=/opt/zaria-order
+
+# Listen only on localhost: Caddy is the only thing that should reach it, and
+# the Python server is a standard-library one, fine behind a proxy and not a
+# good idea in front of the internet.
+Environment=HOST=127.0.0.1
+Environment=PORT=8080
+
+# Sets ZARIA_HTTPS=1 (session cookies marked Secure) and ZARIA_TRUST_PROXY=1
+# (the proxy's address header is believed). Only correct because Caddy is
+# genuinely in front; without a proxy this would let anyone spoof their address
+# past every rate limit.
+Environment=ZARIA_PUBLIC=1
+
+# One address per console.
+Environment=ZARIA_HOST_GUEST=order.zariacourt.rw
+Environment=ZARIA_HOST_VENDOR=vendor.zariacourt.rw
+Environment=ZARIA_HOST_ADMIN=admin.zariacourt.rw
+
+ExecStart=/usr/bin/python3 /opt/zaria-order/server.py
+Restart=always
+RestartSec=3
+
+# The database and the signing key are the only things it needs to write.
+ReadWritePaths=/opt/zaria-order/data
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

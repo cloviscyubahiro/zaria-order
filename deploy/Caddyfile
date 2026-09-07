@@ -1,0 +1,30 @@
+# Three addresses, one program behind them.
+#
+# Caddy gets and renews the HTTPS certificates by itself; there is nothing to
+# buy and nothing to remember. It passes the original Host header through
+# untouched, which is what lets the server tell the three consoles apart, and
+# it sets X-Forwarded-For and X-Forwarded-Proto, which is what ZARIA_PUBLIC=1
+# tells the server to believe.
+#
+# Replace zariacourt.rw with the domain you actually own. All three names must
+# have DNS A records pointing at this server's address before Caddy starts, or
+# the certificate request fails.
+
+order.zariacourt.rw {
+	reverse_proxy 127.0.0.1:8080
+}
+
+vendor.zariacourt.rw {
+	reverse_proxy 127.0.0.1:8080
+}
+
+admin.zariacourt.rw {
+	reverse_proxy 127.0.0.1:8080
+
+	# The owner's console is the one address worth narrowing further. Uncomment
+	# and set your own addresses to allow only those; everyone else gets a 403
+	# without ever reaching the sign-in form. Leave it commented while you are
+	# still working out where you will use it from.
+	# @notmine not remote_ip 41.x.x.x 197.x.x.x
+	# respond @notmine 403
+}
