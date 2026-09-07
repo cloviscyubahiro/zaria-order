@@ -174,10 +174,14 @@ def lan_ip() -> str:
 
 def main():
     ap = argparse.ArgumentParser(description="Zaria Court ordering system")
-    ap.add_argument("--host", default="127.0.0.1",
+    # A rented host tells the program where to listen through the environment
+    # rather than the command line, and every one of them uses these names. The
+    # flags still win, so nothing changes for the venue laptop.
+    ap.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"),
                     help="use 0.0.0.0 to accept phones on the same network")
-    ap.add_argument("--port", type=int, default=8080)
+    ap.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8080")))
     ap.add_argument("--public", action="store_true",
+                    default=os.environ.get("ZARIA_PUBLIC") == "1",
                     help="running behind an HTTPS tunnel or reverse proxy")
     args = ap.parse_args()
 
