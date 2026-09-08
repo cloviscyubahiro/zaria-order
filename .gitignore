@@ -13,6 +13,7 @@ backups/
 data/*.log
 data/*.err
 data/*.out
+data/tunnels/
 
 # 54 MB vendored binary — download it from the cloudflared releases page instead.
 cloudflared.exe
